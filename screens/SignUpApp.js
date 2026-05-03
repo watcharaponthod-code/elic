@@ -19,7 +19,7 @@ const SignUpApp = () => {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
  
 
-  const fadeInValue = useSharedValue(500);
+  const fadeInValue = useSharedValue(0);
   const slideUpValue = useSharedValue(100);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -253,21 +253,37 @@ const SignUpApp = () => {
               />
               <View style={styles.column3}>
                 <Image source={require('../assets/Password Key.png')} resizeMode="stretch" style={styles.image5} />
-                <TextInput
-                  value={password}
-                  onChangeText={setPassword}
-                  placeholder="Password"
-                  secureTextEntry={!passwordVisible}
-                  style={styles.input2}
-                />
+                <View style={{ position: 'relative' }}>
+                  <TextInput
+                    value={password}
+                    onChangeText={setPassword}
+                    placeholder="Password"
+                    secureTextEntry={!passwordVisible}
+                    style={styles.input2}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setPasswordVisible(!passwordVisible)}
+                    style={styles.eyeButton}
+                  >
+                    <Ionicons name={passwordVisible ? 'eye-off' : 'eye'} size={20} color="#452A0D" />
+                  </TouchableOpacity>
+                </View>
                 
-                <TextInput
-                  value={confirmPassword}
-                  onChangeText={setConfirmPassword}
-                  placeholder="Confirm Password"
-                  secureTextEntry={!confirmPasswordVisible}
-                  style={styles.input2}
-                />
+                <View style={{ position: 'relative' }}>
+                  <TextInput
+                    value={confirmPassword}
+                    onChangeText={setConfirmPassword}
+                    placeholder="Confirm Password"
+                    secureTextEntry={!confirmPasswordVisible}
+                    style={styles.input2}
+                  />
+                  <TouchableOpacity
+                    onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                    style={styles.eyeButton}
+                  >
+                    <Ionicons name={confirmPasswordVisible ? 'eye-off' : 'eye'} size={20} color="#452A0D" />
+                  </TouchableOpacity>
+                </View>
                 
                 <View style={styles.row}>
                   <View style={styles.signfrom}>
@@ -470,6 +486,11 @@ const styles = StyleSheet.create({
   },
   buttonDisabled: {
     opacity: 0.7,
+  },
+  eyeButton: {
+    position: 'absolute',
+    right: 50,
+    top: 13,
   },
   scrollViewContent: {
     flexGrow: 1,
