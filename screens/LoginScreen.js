@@ -63,45 +63,7 @@ const LoginScreen = () => {
       })
     ]).start();
 
-    // Start pulse animations for buttons
-    startPulseAnimation();
   }, []);
-
-  const startPulseAnimation = () => {
-    // Pulse animation for SignIn button
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(buttonAnimationSignIn, {
-          toValue: 1.05,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(buttonAnimationSignIn, {
-          toValue: 1,
-          duration: 1000,
-          useNativeDriver: true,
-        }),
-      ])
-    ).start();
-
-    // Pulse animation for SignUp button (with slight delay)
-    setTimeout(() => {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(buttonAnimationSignUp, {
-            toValue: 1.05,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(buttonAnimationSignUp, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }, 500);
-  };
 
   // Animation styles
   const imageTranslateY = imageAnimation.interpolate({
