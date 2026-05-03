@@ -457,16 +457,21 @@ const ChatScreen = () => {
       const parts = !chatbotRole ? getDefaultPrompt() : trainerPrompts;
 
       const response = await axios({
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBaCvvDKrhwkAfDL3YoO4yfsz4ZhVf7oCU`,
+        url: 'http://thaillm.or.th/api/v1/chat/completions',
         method: "post",
+        headers: {
+          'Authorization': 'Bearer eF2M1q1WqAciezFxi58qWzXk3GAIngp8',
+          'Content-Type': 'application/json',
+        },
         data: {
-          contents: [{
-            parts: parts
-          }],
+          model: 'typhoon-s-thaillm-8b-instruct',
+          messages: [{ role: 'user', content: parts.map(p => p.text).join('\n') }],
+          max_tokens: 512,
+          temperature: 0.7,
         },
       });
 
-      const aiMessageText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || randomHi();
+      const aiMessageText = response.data?.choices?.[0]?.message?.content || randomHi();
       const messageChunks = splitLongMessage(aiMessageText);
       
       // ส่งแต่ละข้อความเป็นกล่องแยกกัน
@@ -575,16 +580,21 @@ const ChatScreen = () => {
       }
 
       const response = await axios({
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyCZ4iP7-DhYHNuobEXCC4BluiDnC0_PJLI`,
+        url: 'http://thaillm.or.th/api/v1/chat/completions',
         method: "post",
+        headers: {
+          'Authorization': 'Bearer eF2M1q1WqAciezFxi58qWzXk3GAIngp8',
+          'Content-Type': 'application/json',
+        },
         data: {
-          contents: [{
-            parts: parts
-          }],
+          model: 'typhoon-s-thaillm-8b-instruct',
+          messages: [{ role: 'user', content: parts.map(p => p.text).join('\n') }],
+          max_tokens: 1024,
+          temperature: 0.5,
         },
       });
 
-      const responseText = response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "I'm having trouble right now. Let's try a different topic!";
+      const responseText = response.data?.choices?.[0]?.message?.content || "I'm having trouble right now. Let's try a different topic!";
       
       // Simplified JSON parsing
       try {
@@ -848,23 +858,20 @@ const ChatScreen = () => {
   const translateWithGemini = async (text) => {
     try {
       const response = await axios({
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyAv69JuZQ1KPR2Gr_VGhIg-vSkYNdbFJ0Y`,
+        url: 'http://thaillm.or.th/api/v1/chat/completions',
         method: "post",
+        headers: {
+          'Authorization': 'Bearer eF2M1q1WqAciezFxi58qWzXk3GAIngp8',
+          'Content-Type': 'application/json',
+        },
         data: {
-          contents: [{
-            parts: [
-              { text: `Translate this English text to Thai: "${text}"` },
-              { text: `หางเสียงใช้ครับอย่างเดียว` },
-              { text: "Translate this English text to Thai, keeping the meaning and context intact." },
-              { text: "Use natural, fluent Thai language." },
-              { text: "Do not include any additional explanations or comments." },
-              { text: "Return only the translated text without any extra formatting." },
-              { text: "Return the translation only." },
-            ]
-          }],
+          model: 'typhoon-s-thaillm-8b-instruct',
+          messages: [{ role: 'user', content: `แปลข้อความภาษาอังกฤษต่อไปนี้เป็นภาษาไทย ใช้ภาษาที่เป็นธรรมชาติ ลงท้ายด้วยครับ ตอบเฉพาะคำแปลเท่านั้น ไม่ต้องอธิบายเพิ่ม: "${text}"` }],
+          max_tokens: 512,
+          temperature: 0.3,
         },
       });
-      return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || text;
+      return response.data?.choices?.[0]?.message?.content || text;
     } catch (error) {
       console.error("Translation error:", error);
       return text;
