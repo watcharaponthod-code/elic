@@ -1,0 +1,177 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <style>
+      .title { font: bold 24px sans-serif; fill: #333; }
+      .subtitle { font: 16px sans-serif; fill: #666; }
+      .box-title { font: bold 14px sans-serif; fill: white; }
+      .box-text { font: 12px sans-serif; fill: #333; }
+      .label { font: 11px sans-serif; fill: #666; }
+      .flow-line { stroke: #2563eb; stroke-width: 2; fill: none; }
+      .flow-line-dashed { stroke: #ef4444; stroke-width: 2; fill: none; stroke-dasharray: 5,5; }
+    </style>
+    <marker id="arrowblue" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#2563eb" />
+    </marker>
+    <marker id="arrowred" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#ef4444" />
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="600" y="30" class="title" text-anchor="middle">ELIC Application Architecture</text>
+  <text x="600" y="55" class="subtitle" text-anchor="middle">English Language Improvement Chatbot - Mobile Platform</text>
+
+  <!-- Mobile Client -->
+  <g id="mobile-client">
+    <rect x="50" y="100" width="180" height="220" fill="#e0f2fe" stroke="#0369a1" stroke-width="2" rx="8"/>
+    <rect x="50" y="100" width="180" height="35" fill="#0369a1" rx="8"/>
+    <text x="140" y="123" class="box-title" text-anchor="middle">Mobile Client</text>
+
+    <text x="140" y="160" class="box-text" text-anchor="middle" font-weight="bold">React Native + Expo</text>
+
+    <rect x="65" y="175" width="150" height="30" fill="white" stroke="#0369a1" rx="4"/>
+    <text x="140" y="195" class="box-text" text-anchor="middle">Authentication</text>
+
+    <rect x="65" y="210" width="150" height="30" fill="white" stroke="#0369a1" rx="4"/>
+    <text x="140" y="230" class="box-text" text-anchor="middle">Chat Interface</text>
+
+    <rect x="65" y="245" width="150" height="30" fill="white" stroke="#0369a1" rx="4"/>
+    <text x="140" y="265" class="box-text" text-anchor="middle">Game Modules</text>
+
+    <rect x="65" y="280" width="150" height="30" fill="white" stroke="#0369a1" rx="4"/>
+    <text x="140" y="300" class="box-text" text-anchor="middle">Settings</text>
+  </g>
+
+  <!-- Firebase -->
+  <g id="firebase">
+    <rect x="350" y="100" width="180" height="150" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="8"/>
+    <rect x="350" y="100" width="180" height="35" fill="#f59e0b" rx="8"/>
+    <text x="440" y="123" class="box-title" text-anchor="middle">Firebase</text>
+
+    <rect x="365" y="150" width="150" height="30" fill="white" stroke="#f59e0b" rx="4"/>
+    <text x="440" y="170" class="box-text" text-anchor="middle">Authentication</text>
+
+    <rect x="365" y="185" width="150" height="30" fill="white" stroke="#f59e0b" rx="4"/>
+    <text x="440" y="205" class="box-text" text-anchor="middle">Firestore Database</text>
+
+    <rect x="365" y="220" width="150" height="25" fill="white" stroke="#f59e0b" rx="4"/>
+    <text x="440" y="237" class="box-text" text-anchor="middle">User Data</text>
+  </g>
+
+  <!-- Google Gemini AI -->
+  <g id="gemini">
+    <rect x="350" y="280" width="180" height="100" fill="#ddd6fe" stroke="#7c3aed" stroke-width="2" rx="8"/>
+    <rect x="350" y="280" width="180" height="35" fill="#7c3aed" rx="8"/>
+    <text x="440" y="303" class="box-title" text-anchor="middle">Google Gemini AI</text>
+
+    <rect x="365" y="330" width="150" height="30" fill="white" stroke="#7c3aed" rx="4"/>
+    <text x="440" y="350" class="box-text" text-anchor="middle">Natural Language</text>
+
+    <rect x="365" y="365" width="150" height="10" fill="white" stroke="#7c3aed" rx="4"/>
+  </g>
+
+  <!-- ThaiLLM API -->
+  <g id="thaillm">
+    <rect x="350" y="410" width="180" height="100" fill="#fce7f3" stroke="#ec4899" stroke-width="2" rx="8"/>
+    <rect x="350" y="410" width="180" height="35" fill="#ec4899" rx="8"/>
+    <text x="440" y="433" class="box-title" text-anchor="middle">ThaiLLM API</text>
+
+    <rect x="365" y="460" width="150" height="30" fill="white" stroke="#ec4899" rx="4"/>
+    <text x="440" y="480" class="box-text" text-anchor="middle">Thai Language Model</text>
+  </g>
+
+  <!-- Backend Services -->
+  <g id="backend">
+    <rect x="650" y="100" width="200" height="220" fill="#fee2e2" stroke="#dc2626" stroke-width="2" rx="8"/>
+    <rect x="650" y="100" width="200" height="35" fill="#dc2626" rx="8"/>
+    <text x="750" y="123" class="box-title" text-anchor="middle">Core Services</text>
+
+    <rect x="665" y="150" width="170" height="30" fill="white" stroke="#dc2626" rx="4"/>
+    <text x="750" y="170" class="box-text" text-anchor="middle">Role-Based Prompts</text>
+
+    <rect x="665" y="185" width="170" height="30" fill="white" stroke="#dc2626" rx="4"/>
+    <text x="750" y="205" class="box-text" text-anchor="middle">Chat Management</text>
+
+    <rect x="665" y="220" width="170" height="30" fill="white" stroke="#dc2626" rx="4"/>
+    <text x="750" y="240" class="box-text" text-anchor="middle">Vocabulary Engine</text>
+
+    <rect x="665" y="255" width="170" height="30" fill="white" stroke="#dc2626" rx="4"/>
+    <text x="750" y="275" class="box-text" text-anchor="middle">Game Logic</text>
+
+    <rect x="665" y="290" width="170" height="25" fill="white" stroke="#dc2626" rx="4"/>
+    <text x="750" y="307" class="box-text" text-anchor="middle">Text-to-Speech</text>
+  </g>
+
+  <!-- Data Storage -->
+  <g id="storage">
+    <rect x="950" y="100" width="180" height="150" fill="#d1fae5" stroke="#059669" stroke-width="2" rx="8"/>
+    <rect x="950" y="100" width="180" height="35" fill="#059669" rx="8"/>
+    <text x="1040" y="123" class="box-title" text-anchor="middle">Data Storage</text>
+
+    <rect x="965" y="150" width="150" height="30" fill="white" stroke="#059669" rx="4"/>
+    <text x="1040" y="170" class="box-text" text-anchor="middle">User Profiles</text>
+
+    <rect x="965" y="185" width="150" height="30" fill="white" stroke="#059669" rx="4"/>
+    <text x="1040" y="205" class="box-text" text-anchor="middle">Chat History</text>
+
+    <rect x="965" y="220" width="150" height="25" fill="white" stroke="#059669" rx="4"/>
+    <text x="1040" y="237" class="box-text" text-anchor="middle">Game Scores</text>
+  </g>
+
+  <!-- Connections -->
+  <!-- Mobile to Firebase -->
+  <path d="M 230 150 L 350 150" class="flow-line" marker-end="url(#arrowblue)"/>
+  <text x="290" y="145" class="label">Auth</text>
+
+  <!-- Mobile to Firebase (Data) -->
+  <path d="M 230 210 L 350 210" class="flow-line" marker-end="url(#arrowblue)"/>
+  <text x="290" y="205" class="label">Data Sync</text>
+
+  <!-- Mobile to Gemini -->
+  <path d="M 230 270 L 350 330" class="flow-line" marker-end="url(#arrowblue)"/>
+  <text x="240" y="300" class="label">AI Chat</text>
+
+  <!-- Mobile to ThaiLLM -->
+  <path d="M 230 290 L 350 450" class="flow-line-dashed" marker-end="url(#arrowred)"/>
+  <text x="240" y="370" class="label">Thai LLM</text>
+
+  <!-- Mobile to Backend -->
+  <path d="M 230 230 L 650 230" class="flow-line" marker-end="url(#arrowblue)"/>
+  <text x="440" y="225" class="label">API Calls</text>
+
+  <!-- Firebase to Storage -->
+  <path d="M 530 190 L 950 190" class="flow-line" marker-end="url(#arrowblue)"/>
+  <text x="740" y="185" class="label">Data Flow</text>
+
+  <!-- Backend to Storage -->
+  <path d="M 850 210 L 950 210" class="flow-line" marker-end="url(#arrowblue)"/>
+
+  <!-- Gemini to Backend -->
+  <path d="M 530 330 L 650 230" class="flow-line-dashed" marker-end="url(#arrowred)"/>
+
+  <!-- ThaiLLM to Backend -->
+  <path d="M 530 460 L 650 280" class="flow-line-dashed" marker-end="url(#arrowred)"/>
+
+  <!-- Legend -->
+  <g id="legend">
+    <rect x="50" y="550" width="1100" height="220" fill="#f9fafb" stroke="#d1d5db" stroke-width="2" rx="8"/>
+    <text x="70" y="580" class="subtitle" font-weight="bold">Data Flow Legend</text>
+
+    <line x1="70" y1="600" x2="120" y2="600" class="flow-line" marker-end="url(#arrowblue)"/>
+    <text x="130" y="605" class="label">Primary Data Flow</text>
+
+    <line x1="70" y1="630" x2="120" y2="630" class="flow-line-dashed" marker-end="url(#arrowred)"/>
+    <text x="130" y="635" class="label">AI Service Integration</text>
+
+    <text x="70" y="670" class="subtitle" font-weight="bold">Key Features</text>
+    <text x="70" y="695" class="label">• Real-time authentication via Firebase</text>
+    <text x="70" y="715" class="label">• AI-powered conversation using Google Gemini</text>
+    <text x="70" y="735" class="label">• Multi-language support (English/Thai) with ThaiLLM</text>
+    <text x="70" y="755" class="label">• Interactive learning games (Vocabulary, Translation, Matching)</text>
+
+    <text x="600" y="695" class="label">• Role-based conversation scenarios</text>
+    <text x="600" y="715" class="label">• Text-to-speech for pronunciation practice</text>
+    <text x="600" y="735" class="label">• Progress tracking and scoring system</text>
+    <text x="600" y="755" class="label">• Persistent chat history and user preferences</text>
+  </g>
+</svg>
