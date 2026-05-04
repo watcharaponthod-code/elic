@@ -624,7 +624,7 @@ elic/
 
 ## 👨‍💻 ผู้พัฒนา
 
-**วัชรพล ถศรักษา**
+**วัชรพล ทศรักษา**
 รหัสนักศึกษา: 6540202949
 GitHub: [@watcharaponthod-code](https://github.com/watcharaponthod-code)
 
