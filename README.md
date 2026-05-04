@@ -94,9 +94,42 @@ The application follows a modern client-server architecture with cloud-based AI 
 
 ## 📥 Download APK
 
-### Latest Release
+<div align="center">
 
-You can download the latest APK build using Expo's build service:
+### 🚀 Direct Download (Recommended)
+
+[![Download APK](https://img.shields.io/badge/Download-APK%20File-success?style=for-the-badge&logo=android&logoColor=white)](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
+
+**[📁 View All Downloads on Google Drive](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)**
+
+</div>
+
+> **Note**: You need to enable "Install from Unknown Sources" in your Android settings to install the APK.
+
+### Installation Steps
+
+1. **Download the APK**
+   - Click the download button above
+   - Select the latest APK file from the Google Drive folder
+   - Download to your Android device
+
+2. **Install the APK**
+   - Open the downloaded APK file
+   - If prompted, enable "Install from Unknown Sources"
+   - Tap "Install" and wait for completion
+   - Open ELIC app
+
+### Build Information
+- **Package**: `com.mojo093.Elic`
+- **Version**: 1.0.0
+- **Build Type**: Release APK
+- **Minimum SDK**: Android 5.0 (API 21)
+- **Target SDK**: Latest
+- **Download Location**: [Google Drive](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
+
+### Alternative: Build Your Own APK
+
+If you prefer to build the APK yourself:
 
 ```bash
 # Install EAS CLI
@@ -105,22 +138,17 @@ npm install -g eas-cli
 # Login to Expo
 eas login
 
-# Build APK
+# Build APK (automated script available)
+./build-and-upload.sh
+
+# Or manually:
 eas build --platform android --profile preview
 ```
 
-Alternatively, download pre-built APK:
-
-**[📲 Download ELIC APK (Latest Version)](https://expo.dev/accounts/mojo093/projects/Elic/builds)**
-
-> **Note**: You need to enable "Install from Unknown Sources" in your Android settings to install the APK.
-
-### Build Information
-- **Package**: `com.mojo093.Elic`
-- **Version**: 1.0.0
-- **Build Type**: Release APK
-- **Minimum SDK**: Android 5.0 (API 21)
-- **Target SDK**: Latest
+The automated script `build-and-upload.sh` will:
+- Build the APK using EAS
+- Automatically upload to Google Drive
+- Generate a shareable download link
 
 ---
 
@@ -462,11 +490,34 @@ For questions, issues, or suggestions:
 
 ## 📥 ดาวน์โหลด APK
 
-### เวอร์ชันล่าสุด
+<div align="center">
 
-**[📲 ดาวน์โหลด ELIC APK (เวอร์ชันล่าสุด)](https://expo.dev/accounts/mojo093/projects/Elic/builds)**
+### 🚀 ดาวน์โหลดโดยตรง (แนะนำ)
 
-หรือ build เอง:
+[![ดาวน์โหลด APK](https://img.shields.io/badge/ดาวน์โหลด-ไฟล์%20APK-success?style=for-the-badge&logo=android&logoColor=white)](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
+
+**[📁 ดูไฟล์ดาวน์โหลดทั้งหมดบน Google Drive](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)**
+
+</div>
+
+> **หมายเหตุ**: คุณต้องเปิดใช้งาน "ติดตั้งจากแหล่งที่ไม่รู้จัก" ในการตั้งค่า Android เพื่อติดตั้ง APK
+
+### ขั้นตอนการติดตั้ง
+
+1. **ดาวน์โหลด APK**
+   - คลิกปุ่มดาวน์โหลดด้านบน
+   - เลือกไฟล์ APK เวอร์ชันล่าสุดจากโฟลเดอร์ Google Drive
+   - ดาวน์โหลดลงในอุปกรณ์ Android ของคุณ
+
+2. **ติดตั้ง APK**
+   - เปิดไฟล์ APK ที่ดาวน์โหลดมา
+   - หากมีข้อความแจ้ง ให้เปิดใช้งาน "ติดตั้งจากแหล่งที่ไม่รู้จัก"
+   - แตะ "ติดตั้ง" และรอจนเสร็จสิ้น
+   - เปิดแอพ ELIC
+
+### ทางเลือก: Build APK เอง
+
+หากต้องการ build APK เอง:
 
 ```bash
 # ติดตั้ง EAS CLI
@@ -475,11 +526,17 @@ npm install -g eas-cli
 # เข้าสู่ระบบ Expo
 eas login
 
-# Build APK
+# Build APK (มีสคริปต์อัตโนมัติ)
+./build-and-upload.sh
+
+# หรือ build ด้วยตนเอง:
 eas build --platform android --profile preview
 ```
 
-> **หมายเหตุ**: คุณต้องเปิดใช้งาน "ติดตั้งจากแหล่งที่ไม่รู้จัก" ในการตั้งค่า Android เพื่อติดตั้ง APK
+สคริปต์อัตโนมัติ `build-and-upload.sh` จะ:
+- Build APK โดยใช้ EAS
+- อัพโหลดไปยัง Google Drive อัตโนมัติ
+- สร้างลิงก์ดาวน์โหลดแบบแชร์ได้
 
 ---
 
