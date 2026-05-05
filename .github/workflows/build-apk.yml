@@ -27,57 +27,56 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
+    outputs:
+      build_id: ${{ steps.build-info.outputs.build_id }}
 
     steps:
-      - name: 🔍 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🏗️ Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18.x
           cache: 'npm'
 
-      - name: 📦 Install dependencies
+      - name: Install dependencies
         run: npm ci
 
-      - name: 🔧 Setup Expo and EAS
+      - name: Setup Expo and EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
           packager: npm
 
-      - name: 🚀 Build APK
+      - name: Build APK
         run: |
           eas build --platform android --profile ${{ github.event.inputs.profile || 'preview' }} --non-interactive --no-wait
 
-      - name: 📊 Get build status
+      - name: Get build ID
         id: build-info
         run: |
-          echo "Check build status at: https://expo.dev/accounts/mojo093/projects/Elic/builds"
+          sleep 10
           eas build:list --platform android --limit 1 --json > build-info.json
-          BUILD_URL=$(jq -r '.[0].artifacts.buildUrl // "pending"' build-info.json)
           BUILD_ID=$(jq -r '.[0].id // "unknown"' build-info.json)
-          echo "build_url=$BUILD_URL" >> $GITHUB_OUTPUT
           echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+          echo "Build ID: $BUILD_ID"
+          echo "Dashboard: https://expo.dev/accounts/mojo093/projects/Elic/builds"
 
-      - name: 💬 Comment on commit
+      - name: Comment on commit
         uses: peter-evans/commit-comment@v3
         with:
           body: |
-            ## 🚀 Android APK Build Started
+            ## Android APK Build Started
 
             **Build Profile**: `${{ github.event.inputs.profile || 'preview' }}`
             **Build ID**: `${{ steps.build-info.outputs.build_id }}`
 
-            📊 **Check build status**: [EAS Dashboard](https://expo.dev/accounts/mojo093/projects/Elic/builds)
+            **Check build status**: [EAS Dashboard](https://expo.dev/accounts/mojo093/projects/Elic/builds)
 
-            Once the build completes (~10-20 minutes), download the APK and upload it to:
-            📁 [Google Drive Folder](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
-
-            ---
-            🤖 *Build triggered by GitHub Actions*
+            Once the build completes (~10-20 minutes), the APK will be uploaded to:
+            [Google Drive Folder](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
 
   upload-to-drive:
     name: Upload to Google Drive
@@ -86,54 +85,61 @@ jobs:
     if: github.event_name == 'workflow_dispatch'
 
     steps:
-      - name: 🔍 Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: 🏗️ Setup Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
 
-      - name: 🔧 Setup EAS
+      - name: Setup EAS
         uses: expo/expo-github-action@v8
         with:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - name: ⏳ Wait for build completion
+      - name: Wait for build completion
+        env:
+          BUILD_ID: ${{ needs.build.outputs.build_id }}
         run: |
-          echo "Waiting for build to complete..."
+          echo "Waiting for build ID: $BUILD_ID"
           for i in {1..60}; do
-            BUILD_STATUS=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].status')
-            echo "Build status: $BUILD_STATUS"
+            BUILD_STATUS=$(eas build:view --id "$BUILD_ID" --json | jq -r '.status')
+            echo "Attempt $i/60 — status: $BUILD_STATUS"
 
             if [ "$BUILD_STATUS" == "FINISHED" ]; then
-              echo "✅ Build completed successfully!"
+              echo "Build completed successfully."
               break
             elif [ "$BUILD_STATUS" == "ERRORED" ] || [ "$BUILD_STATUS" == "CANCELED" ]; then
-              echo "❌ Build failed with status: $BUILD_STATUS"
+              echo "Build failed with status: $BUILD_STATUS"
               exit 1
             fi
 
-            echo "Still building... (attempt $i/60)"
+            if [ "$i" == "60" ]; then
+              echo "Timed out waiting for build."
+              exit 1
+            fi
+
             sleep 60
           done
 
-      - name: 📥 Download APK
+      - name: Download APK
+        env:
+          BUILD_ID: ${{ needs.build.outputs.build_id }}
         run: |
-          BUILD_URL=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].artifacts.buildUrl')
-          BUILD_ID=$(eas build:list --platform android --limit 1 --json | jq -r '.[0].id')
+          BUILD_URL=$(eas build:view --id "$BUILD_ID" --json | jq -r '.artifacts.buildUrl')
 
-          if [ "$BUILD_URL" != "null" ] && [ -n "$BUILD_URL" ]; then
-            echo "Downloading APK from: $BUILD_URL"
-            wget -O "ELIC-${BUILD_ID}.apk" "$BUILD_URL"
-            echo "build_id=$BUILD_ID" >> $GITHUB_ENV
-          else
-            echo "❌ Build URL not available"
+          if [ "$BUILD_URL" == "null" ] || [ -z "$BUILD_URL" ]; then
+            echo "Build URL not available for build $BUILD_ID"
             exit 1
           fi
 
-      - name: ☁️ Upload to Google Drive
+          echo "Downloading from: $BUILD_URL"
+          wget -O "ELIC-${BUILD_ID}.apk" "$BUILD_URL"
+          echo "build_id=$BUILD_ID" >> $GITHUB_ENV
+
+      - name: Upload to Google Drive
         env:
           MATON_API_KEY: ${{ secrets.MATON_API_KEY }}
         run: |
@@ -145,11 +151,9 @@ jobs:
 
           print(f"Uploading {apk_file}...")
 
-          # Read APK file
           with open(apk_file, 'rb') as f:
               apk_content = f.read()
 
-          # Upload using multipart
           file_metadata = {
               'name': os.path.basename(apk_file),
               'parents': [folder_id]
@@ -177,40 +181,33 @@ jobs:
               result = json.load(response)
               file_id = result['id']
 
-              # Make public
               permission = {'type': 'anyone', 'role': 'reader'}
-              data = json.dumps(permission).encode()
-              req = urllib.request.Request(
+              perm_data = json.dumps(permission).encode()
+              perm_req = urllib.request.Request(
                   f'https://gateway.maton.ai/google-drive/drive/v3/files/{file_id}/permissions',
-                  data=data,
+                  data=perm_data,
                   method='POST'
               )
-              req.add_header('Authorization', f'Bearer {os.environ["MATON_API_KEY"]}')
-              req.add_header('Content-Type', 'application/json')
-              urllib.request.urlopen(req)
+              perm_req.add_header('Authorization', f'Bearer {os.environ["MATON_API_KEY"]}')
+              perm_req.add_header('Content-Type', 'application/json')
+              urllib.request.urlopen(perm_req)
 
-              print(f"✅ Upload successful!")
+              print(f"Upload successful.")
               print(f"File ID: {file_id}")
               print(f"Download: https://drive.google.com/uc?export=download&id={file_id}")
-              print(f"View: https://drive.google.com/file/d/{file_id}/view")
 
           except Exception as e:
-              print(f"❌ Upload failed: {e}")
+              print(f"Upload failed: {e}")
               sys.exit(1)
           PYEOF
 
-      - name: 📝 Create release comment
+      - name: Comment on commit
         uses: peter-evans/commit-comment@v3
         with:
           body: |
-            ## ✅ APK Build & Upload Complete!
+            ## APK Build and Upload Complete
 
             **APK File**: `ELIC-${{ env.build_id }}.apk`
             **Status**: Successfully uploaded to Google Drive
 
-            📥 **Download APK**: [Google Drive Folder](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
-
-            📖 **README**: [View download instructions](https://github.com/watcharaponthod-code/elic#-download-apk)
-
-            ---
-            🎉 *Users can now download the APK from the README!*
+            **Download APK**: [Google Drive Folder](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
