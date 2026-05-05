@@ -16,11 +16,6 @@ ELIC is a mobile English learning application that places users inside realistic
 
 The application is designed for Thai-speaking learners who need practical, context-driven English practice rather than rote memorization. It combines a conversational AI core with gamified exercises, leaderboards, and text-to-speech playback to reinforce both reading and listening skills.
 
----
-
-## Demo
-
-[![Watch on YouTube](https://img.youtube.com/vi/PKXDnShNFuY/maxresdefault.jpg)](https://youtu.be/PKXDnShNFuY?si=1Jyjcs10awJH5j58)
 
 ---
 
