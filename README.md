@@ -236,7 +236,11 @@ Pre-built APK download: [Google Drive](https://drive.google.com/drive/folders/1_
 
 ---
 
-## Use Case Diagram — LLM Workflow Prompt
+## Use Case Diagram — LLM Workflow
+
+![ELIC Use Case Diagram](https://drive.google.com/uc?export=view&id=1hshxbkNELN3joAWRhHG7Bq4lDJqs5isC)
+
+*[View full size](https://drive.google.com/file/d/1hshxbkNELN3joAWRhHG7Bq4lDJqs5isC/view?usp=drive_link)*
 
 The following prompt can be submitted to any LLM or diagram tool (PlantUML, Mermaid Live, ChatGPT, etc.) to generate a use case diagram of the ELIC LLM workflow.
 
