@@ -7,13 +7,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBEeaWcozjuWmkj9zuYIGGSTTkC69Pa408",
-  authDomain: "realtimechat-38588.firebaseapp.com",
-  databaseURL: "https://realtimechat-38588-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "realtimechat-38588",
-  storageBucket: "realtimechat-38588.appspot.com",
-  messagingSenderId: "433334288159",
-  appId: "1:433334288159:android:07343243d098b6f515fa2a"
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.EXPO_PUBLIC_FIREBASE_DATABASE_URL,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APP_ID
 };
 
 // Initialize Firebase

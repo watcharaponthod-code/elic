@@ -460,7 +460,7 @@ const ChatScreen = () => {
         url: 'http://thaillm.or.th/api/v1/chat/completions',
         method: "post",
         headers: {
-          'Authorization': 'Bearer eF2M1q1WqAciezFxi58qWzXk3GAIngp8',
+          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_THAILLM_API_KEY}`,
           'Content-Type': 'application/json',
         },
         data: {
@@ -583,7 +583,7 @@ const ChatScreen = () => {
         url: 'http://thaillm.or.th/api/v1/chat/completions',
         method: "post",
         headers: {
-          'Authorization': 'Bearer eF2M1q1WqAciezFxi58qWzXk3GAIngp8',
+          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_THAILLM_API_KEY}`,
           'Content-Type': 'application/json',
         },
         data: {
@@ -861,7 +861,7 @@ const ChatScreen = () => {
         url: 'http://thaillm.or.th/api/v1/chat/completions',
         method: "post",
         headers: {
-          'Authorization': 'Bearer eF2M1q1WqAciezFxi58qWzXk3GAIngp8',
+          'Authorization': `Bearer ${process.env.EXPO_PUBLIC_THAILLM_API_KEY}`,
           'Content-Type': 'application/json',
         },
         data: {

@@ -42,7 +42,7 @@ def setup_client(api_key=None):
     """Setup the Gemini client with the provided API key or default"""
     return genai.Client(
         http_options={"api_version": "v1beta"},
-        api_key=api_key or 'AIzaSyD0SsGfLw7fIM36oHhlJ-0rVpJRUaLuzAc',
+        api_key=api_key or os.environ.get('GEMINI_API_KEY'),
     )
 
 client = setup_client()

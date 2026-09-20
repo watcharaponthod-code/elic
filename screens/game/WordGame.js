@@ -243,7 +243,7 @@ const checkWord = async () => {
 
     try {
       const response = await axios({
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=AIzaSyBuTGpSErtIEMtwnzt3jVYsz36ytwJWc_o`,
+        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.EXPO_PUBLIC_GEMINI_API_KEY}`,
         method: "post",
         data: {
           contents: [{ 
