@@ -1,61 +1,123 @@
-# ELIC — English Language Improvement Chatbot
+<div align="center">
 
-> An AI-powered mobile application for conversational English learning, built on React Native and Google Gemini.
+# ELIC
+
+**English Language Improvement Chatbot**
+
+A Thai-first mobile app that teaches spoken English through role-played conversation,
+built on React Native and a Thai-tuned LLM.
 
 [![React Native](https://img.shields.io/badge/React%20Native-0.76.9-61dafb?logo=react)](https://reactnative.dev/)
-[![Expo](https://img.shields.io/badge/Expo-~52.0-000020?logo=expo)](https://expo.dev/)
-[![Firebase](https://img.shields.io/badge/Firebase-9.23.0-ffca28?logo=firebase)](https://firebase.google.com/)
-[![Google Gemini](https://img.shields.io/badge/Google%20Gemini-AI-4285f4?logo=google)](https://ai.google.dev/)
+[![Expo](https://img.shields.io/badge/Expo-SDK%2052-000020?logo=expo)](https://expo.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-9.23-ffca28?logo=firebase)](https://firebase.google.com/)
+[![Typhoon](https://img.shields.io/badge/LLM-Typhoon%20ThaiLLM%208B-6e56cf)](https://thaillm.or.th/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
----
+[Download APK](#download) · [Architecture](#architecture) · [Timeline](#timeline)
 
-## Overview
-
-ELIC is a mobile English learning application that places users inside realistic conversational scenarios — a hotel check-in, a job interview, a visit to the doctor — and guides them through each interaction with a role-aware AI tutor powered by Google Gemini. Every response from the AI is structured to deliver not just a reply, but also vocabulary breakdowns and real-time spelling and grammar corrections, making each conversation a complete learning session.
-
-The application is designed for Thai-speaking learners who need practical, context-driven English practice rather than rote memorization. It combines a conversational AI core with gamified exercises, leaderboards, and text-to-speech playback to reinforce both reading and listening skills.
-
+</div>
 
 ---
 
-## Key Features
+## Why this exists
 
-### Scenario-Based AI Conversation
-Users select a conversation role before entering the chat. The role determines a tailored system prompt injected into every Gemini API request, ensuring the AI behaves as a domain-appropriate English tutor throughout the session.
+Thai learners are rarely short on English vocabulary. They are short on **situations** —
+the hotel front desk, the job interview, the doctor's office — where the words have to come
+out in real time, under pressure, in the right register.
 
-Available roles:
-- Hotel check-in and guest services
-- Restaurant ordering and dining
-- Job interview preparation
-- Medical consultation
-- Meeting a new acquaintance
-- Taxi and transportation
+ELIC builds those situations. You pick a scenario, and an AI tutor stays in that role for
+the whole conversation: correcting your grammar mid-sentence, pulling out the vocabulary you
+actually needed, and reading its replies aloud so you hear the rhythm.
 
-### Structured AI Response Parsing
-Every response from Gemini is parsed into three distinct components rendered independently in the UI:
-1. **Conversation reply** — the natural language response in the selected scenario
-2. **Vocabulary table** — a formatted English/Thai/example breakdown of key terms from the exchange
-3. **Spelling and grammar correction** — highlights user errors with corrected alternatives and better phrasing suggestions
+Started **August 2024**, when conversational LLMs were new enough that "put a language tutor
+inside a phone app" was still an open engineering question rather than a template. The prompt
+structure, the structured-output parsing, and the context pruning in this repo were all worked
+out by trial against a live model — there was no framework to copy.
 
-### Text-to-Speech Playback
-AI responses can be read aloud via two available TTS pathways:
-- `expo-speech` for immediate on-device playback
-- A Python-based TTS server (`api/tts_server.py`) backed by Gemini's voice API for higher-quality audio output with configurable voice names
+---
 
-### English Learning Games
-Three interactive games reinforce vocabulary and translation skills outside the chat context:
+## Features
 
-| Game | Description |
+### Role-played conversation
+
+Six scenarios, each with its own tutor persona injected as a system prompt on every turn:
+
+| Scenario | What you practice |
 |---|---|
-| Word Game | Given a random letter, the user must submit a valid English word beginning with that letter. Gemini validates each submission. |
-| Translation Game | A Thai sentence is displayed at a chosen difficulty level. The user translates it into English and Gemini scores the accuracy. |
-| Match | A matching exercise pairing English and Thai vocabulary. |
+| Hotel | Check-in, room requests, hotel services |
+| Restaurant | Ordering, preferences, recommendations |
+| Job interview | Self-introduction, experience, job fit |
+| Doctor | Describing symptoms, understanding medical terms |
+| New friend | Small talk, hobbies, personal interests |
+| Taxi | Directions, locations, travel small talk |
 
-All game scores are persisted to Firebase Realtime Database and aggregated on a live Scoreboard and Rank screen.
+Difficulty is a separate axis, so the same scenario runs easy or hard.
 
-### Authentication and Offline Support
-Authentication is handled through Firebase Auth with email and password. User sessions are cached to AsyncStorage, allowing the application to load the last authenticated state without a network round-trip.
+### One reply, three learning artifacts
+
+The tutor does not return prose. It returns JSON, and the app renders each piece as its own
+UI component:
+
+```json
+{
+  "type": "correction",
+  "message": "Of course! Which room type would you prefer?",
+  "corrections": {
+    "errors": [
+      {
+        "original": "I want book a room",
+        "corrected": "I want to book a room",
+        "explanation": "need 'to' after want"
+      }
+    ]
+  }
+}
+```
+
+- **Chat bubble** — the in-character reply
+- **`SpellingCorrection`** — your errors, corrected, explained in Thai and English
+- **`VocabularyTable`** — English / Thai / example sentence, triggered when you ask for
+  vocabulary in either language
+
+Model output is never assumed to be clean JSON. The parser strips code fences, slices from
+the first `{` to the last `}`, and falls back to rendering the raw text as a plain message if
+parsing still fails — a malformed response degrades into a normal chat turn instead of an
+error screen.
+
+### Conversation memory that does not blow up
+
+Long sessions lose the thread and cost tokens. ELIC handles both:
+
+- Only the **last 8 turns** are sent as context on any request
+- A session is flagged long past **40 messages or ~6,000 characters**
+- Beyond that, history is pruned by **importance score** — message length, presence of a
+  question mark, and extracted topic keywords — keeping the most recent 75% intact and
+  salvaging the highest-scoring older turns
+
+The conversation stays coherent for an hour without a growing payload.
+
+### Text to speech
+
+Three paths, so the app still speaks when no server is running:
+
+- `expo-speech` — on-device, instant, always available
+- **FastAPI server** (`api/tts_server.py`) — Gemini Live voice API for natural audio
+- **Flask bridge** (`api/speech_server.py`) — alternative route through `av.py`
+
+### Games and leaderboard
+
+| Game | Mechanic |
+|---|---|
+| **Word Game** | A random letter appears; submit a real English word starting with it. Validated by the model, with a used-word list so you cannot repeat. |
+| **Translation** | A Thai sentence from a curated bank (7 categories × 2 difficulties) — translate it, and the model scores the attempt. |
+| **Match** | 60-second timed English↔Thai card matching over a **1,400+ word** hand-built vocabulary bank. |
+| **Rank / Scoreboard** | Live leaderboard and personal play history, written to Firebase Realtime Database. |
+
+### Auth with offline start
+
+Firebase Auth (email/password + Google Sign-In) with the session mirrored into AsyncStorage.
+The app renders the last authenticated state immediately on cold start and reconciles with
+Firebase in the background — no spinner waiting on the network.
 
 ---
 
@@ -63,257 +125,164 @@ Authentication is handled through Firebase Auth with email and password. User se
 
 ![ELIC Architecture](./architecture-diagram.svg)
 
-The system is composed of three principal layers.
+```
+┌──────────────────────────────────────────────┐
+│  React Native / Expo  ·  13 screens          │
+│  React Navigation (stack)                    │
+└───────┬─────────────────┬──────────────┬─────┘
+        │                 │              │
+        ▼                 ▼              ▼
+┌───────────────┐  ┌─────────────┐  ┌──────────────┐
+│ Typhoon       │  │  Firebase   │  │ TTS servers  │
+│ ThaiLLM 8B    │  │  Auth       │  │ FastAPI :8000│
+│ — chat tutor  │  │  Firestore  │  │ Flask   :5000│
+│               │  │  RTDB       │  │              │
+│ Gemini 2.0    │  │  — scores   │  │ expo-speech  │
+│ — games, TTS  │  │  — ranks    │  │ — fallback   │
+└───────────────┘  └─────────────┘  └──────────────┘
+```
 
-### Client Layer (React Native / Expo)
-The mobile application is built with React Native and bundled through Expo. Navigation is managed by React Navigation with a stack-based structure across thirteen screens. UI state, animation, and component lifecycle are managed entirely within React functional components using hooks.
+**Two models, on purpose.** The chat tutor runs on `typhoon-s-thaillm-8b-instruct` via
+ThaiLLM — a Thai-tuned model that writes Thai-language grammar explanations far better than a
+general model. The games run on `gemini-2.0-flash`, where the task is short English word and
+translation validation, and latency matters more than Thai fluency. The chat path was migrated
+off Gemini in May 2026 for exactly this reason.
 
-### Backend and Data Layer (Firebase)
-| Service | Purpose |
-|---|---|
-| Firebase Authentication | User registration, login, password recovery |
-| Cloud Firestore | User profile documents |
-| Firebase Realtime Database | Game scores, leaderboards, play history |
-| AsyncStorage | Local session cache for offline startup |
-
-### AI and Service Layer
-| Service | Role |
-|---|---|
-| Google Gemini API | Conversational AI, response generation, translation scoring, word validation |
-| Python TTS Server (FastAPI) | High-quality text-to-speech using Gemini voice API |
-| Python Speech Server (Flask) | Alternative speech bridge via `av.py` |
-
----
-
-## LLM Workflow
-
-The following describes the complete data flow for a single chat interaction.
+### One chat turn, end to end
 
 ```
-User selects role
-        |
-        v
-getRolePrompt.js generates system prompt
-(e.g. "You are an English teacher in a hotel setting...")
-        |
-        v
-User types a message
-        |
-        v
-ChatScreen assembles API payload:
-  - system prompt (role-based)
-  - conversation history (prior turns)
-  - user message
-        |
-        v
-POST --> Google Gemini API
-(generativelanguage.googleapis.com)
-        |
-        v
-Gemini returns structured response:
-  {
-    reply: "...",
-    vocabulary: [{ english, thai, example }],
-    spellingCorrection: { original, corrected, betterPhrase, errors[] }
-  }
-        |
-        v
-ChatScreen renders:
-  - Chat bubble (reply text)
-  - VocabularyTable component
-  - SpellingCorrection component
-        |
-        v
-[Optional] User taps speak button
-        |
-        v
-expo-speech  OR  POST --> TTS Server --> WAV audio
+role selection ──► getRolePrompt()   ──┐
+last 8 turns   ──► formatChatHistory ──┤
+user message   ───────────────────────►├──► POST thaillm.or.th/v1/chat/completions
+difficulty     ───────────────────────►│    temperature 0.5 · max_tokens 1024
+output schema  ───────────────────────►┘
+                                        │
+                                        ▼
+                         tolerant JSON extraction
+                                        │
+                   ┌────────────────────┼────────────────────┐
+                   ▼                    ▼                    ▼
+             chat bubble        SpellingCorrection    VocabularyTable
+                   │
+                   └──► [speak] ──► expo-speech  or  TTS server ──► WAV
 ```
 
 ---
 
-## Project Structure
+## Project structure
 
 ```
 elic/
-├── App.js                        # Root navigator and auth state listener
-├── app.json                      # Expo configuration
-├── config/
-│   └── firebase.js               # Firebase initialization
+├── App.js                      Root navigator + auth state listener
+├── config/firebase.js          Firebase initialization
 ├── screens/
-│   ├── ChatScreen.js             # Primary AI chat interface
-│   ├── LoginScreen.js / LoginApp.js / SignUpApp.js / ForgotPassword.js
-│   ├── menu.js                   # Main menu navigation
-│   ├── profile.js                # User profile screen
+│   ├── ChatScreen.js           Chat UI, prompt assembly, response parsing (~1,950 lines)
+│   ├── LoginScreen.js  LoginApp.js  SignUpApp.js  ForgotPassword.js
+│   ├── menu.js  profile.js
 │   ├── option/
-│   │   ├── Settings.js           # Role selector component
-│   │   ├── getRolePrompt.js      # Role-to-system-prompt mapping
-│   │   ├── MiniMenu.js
-│   │   ├── random.js / random1.js  # Sentence pools for Translation game
+│   │   ├── getRolePrompt.js    Scenario → system prompt
+│   │   ├── Settings.js         Role + difficulty selector
+│   │   ├── random.js           1,400+ word EN/TH vocabulary bank
+│   │   └── random1.js          Thai sentence bank, 7 categories × 2 levels
 │   └── game/
-│       ├── WordGame.js           # Random letter word challenge
-│       ├── Translation.js        # Thai-to-English translation game
-│       ├── Match.js              # Vocabulary matching game
-│       ├── Rank.js               # Personal rank display
-│       └── Scoreboard.js         # Live leaderboard
-├── components/
-│   └── QuickMessageOptions.js    # Preset message shortcuts
+│       ├── WordGame.js  Translation.js  Match.js
+│       └── Rank.js  Scoreboard.js
+├── components/QuickMessageOptions.js
 ├── api/
-│   ├── speech_server.py          # Flask TTS bridge (port 5000)
-│   └── tts_server.py             # FastAPI TTS server (port 8000)
-└── assets/                       # Fonts, images, audio files
+│   ├── tts_server.py           FastAPI + Gemini Live voice  (:8000)
+│   └── speech_server.py        Flask bridge via av.py       (:5000)
+└── .github/workflows/build-apk.yml   EAS build → Google Drive upload
 ```
 
 ---
 
-## Getting Started
+## Getting started
 
-### Prerequisites
-
-- Node.js 20 or later
-- Expo CLI
-- Android Studio or a physical Android device
-- A Google Gemini API key
-- A Firebase project with Authentication, Firestore, and Realtime Database enabled
-
-### Installation
+**Prerequisites** — Node.js 20+, Expo CLI, Android Studio or a physical device, a Firebase
+project (Auth + Firestore + Realtime Database), a ThaiLLM API key, a Google Gemini API key.
 
 ```bash
 git clone https://github.com/watcharaponthod-code/elic.git
 cd elic
 npm install
-```
-
-### Environment Configuration
-
-Create `config/.env` and set the required keys:
-
-```env
-GEMINI_API_KEY=your_gemini_api_key
-FIREBASE_API_KEY=your_firebase_api_key
-FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-FIREBASE_PROJECT_ID=your_project_id
-FIREBASE_DATABASE_URL=https://your_project.firebaseio.com
-FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-FIREBASE_APP_ID=your_app_id
-```
-
-### Running the Application
-
-```bash
 npx expo start
 ```
 
-Scan the QR code with Expo Go, or press `a` to launch on a connected Android device or emulator.
+Press `a` for Android, or scan the QR code with Expo Go.
 
-### Running the TTS Server (Optional)
+### Configuration
+
+Create `config/.env`. It is gitignored — no key belongs in source:
+
+```env
+THAILLM_API_KEY=...
+GEMINI_API_KEY=...
+FIREBASE_API_KEY=...
+FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+FIREBASE_PROJECT_ID=...
+FIREBASE_DATABASE_URL=https://your_project.firebaseio.com
+FIREBASE_STORAGE_BUCKET=...
+FIREBASE_MESSAGING_SENDER_ID=...
+FIREBASE_APP_ID=...
+```
+
+### Optional: run the TTS server
 
 ```bash
-pip install fastapi uvicorn flask flask-cors
+pip install fastapi uvicorn google-generativeai python-multipart
 python api/tts_server.py
 ```
 
 ---
 
-## Building a Release APK
+## Building a release APK
 
-This repository includes a GitHub Actions workflow that builds the APK through EAS and uploads it to Google Drive automatically.
+`.github/workflows/build-apk.yml` runs the whole release on GitHub Actions:
 
-1. Trigger the workflow from the **Actions** tab in GitHub
-2. Select build profile: `preview` or `production`
-3. The **Build APK with EAS** job compiles the application on Expo's build infrastructure
-4. The **Upload to Google Drive** job waits for the build to complete, downloads the APK, and uploads it to the shared Drive folder
+1. Trigger **Build APK with EAS** from the Actions tab, choosing `preview` or `production`
+2. EAS compiles on Expo's infrastructure and returns a `build_id`
+3. A second job polls that specific build, downloads the APK, and uploads it to Google Drive
 
-Requires the following repository secrets: `EXPO_TOKEN`, `MATON_API_KEY`
-
-Pre-built APK download: [Google Drive](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
-
----
-
-## Use Case Diagram — LLM Workflow
-
-![ELIC Use Case Diagram](https://drive.google.com/uc?export=view&id=1hshxbkNELN3joAWRhHG7Bq4lDJqs5isC)
-
-*[View full size](https://drive.google.com/file/d/1hshxbkNELN3joAWRhHG7Bq4lDJqs5isC/view?usp=drive_link)*
-
-The following prompt can be submitted to any LLM or diagram tool (PlantUML, Mermaid Live, ChatGPT, etc.) to generate a use case diagram of the ELIC LLM workflow.
-
-```
-Generate a formal UML Use Case Diagram for a mobile English learning application called ELIC.
-
-Actors:
-- User (primary actor, authenticated Thai-speaking learner)
-- Google Gemini API (external AI system)
-- Firebase (external data system)
-- TTS Service (external audio system)
-
-Use Cases grouped by subsystem:
-
-[Authentication]
-- Register with email and password
-- Log in to account
-- Reset forgotten password
-- Maintain offline session via local cache
-
-[AI Chat Module]
-- Select conversation role (hotel / restaurant / interview / doctor / new friend / taxi)
-- Send message to AI tutor
-  -- include: Generate role-based system prompt
-  -- include: Attach conversation history
-- Receive structured AI response
-  -- include: Parse vocabulary table
-  -- include: Parse spelling and grammar correction
-- Play AI response as audio
-  -- extend: Use device TTS (expo-speech)
-  -- extend: Use Python TTS server (Gemini voice API)
-
-[Game Module]
-- Play Word Game (validate English word via Gemini)
-- Play Translation Game (score Thai-to-English translation via Gemini)
-- Play Match Game
-- View personal rank
-- View live scoreboard
-
-[Profile]
-- View user profile
-- Configure chatbot role in settings
-
-Relationships:
-- "Send message to AI tutor" communicates with Google Gemini API
-- "Play Word Game" and "Play Translation Game" communicate with Google Gemini API
-- All authentication and score storage use cases communicate with Firebase
-- "Play AI response as audio" communicates with TTS Service
-
-Style: Use standard UML Use Case notation with system boundary box labeled "ELIC Mobile Application". Place external actors outside the boundary. Show include and extend relationships with dashed arrows labeled <<include>> and <<extend>>.
-```
-
----
-
-## Technology Stack
-
-| Category | Technology |
-|---|---|
-| Mobile Framework | React Native 0.76.9, Expo ~52.0 |
-| Navigation | React Navigation 7 |
-| AI | Google Gemini API (gemini-2.0-flash) |
-| Authentication | Firebase Authentication |
-| Database | Firebase Firestore, Firebase Realtime Database |
-| Local Storage | AsyncStorage |
-| TTS | expo-speech, FastAPI + Gemini Voice |
-| Build | EAS Build (Expo Application Services) |
-| CI/CD | GitHub Actions |
-
----
-
-## License
-
-This project is licensed under the MIT License. See [LICENSE](LICENSE) for details.
+Required repository secrets: `EXPO_TOKEN`, `MATON_API_KEY`.
+Full walkthrough in [HOW-TO-BUILD.md](HOW-TO-BUILD.md).
 
 ---
 
 ## Download
 
-Pre-built APK: [Google Drive Folder](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)
+Pre-built APK: **[Google Drive](https://drive.google.com/drive/folders/1_733nt1TTmaK9fqcgd-cGJRLJuieBpj5)**
+· Install instructions in [DOWNLOAD.md](DOWNLOAD.md)
 
-For installation instructions, see [DOWNLOAD.md](DOWNLOAD.md).
+---
+
+## Timeline
+
+| | |
+|---|---|
+| **Aug 2024** | First commit — chat prototype against an early conversational LLM |
+| **Mar – Jun 2025** | Games, Firebase leaderboards, profile, TTS servers |
+| **Oct 2025** | UI rework |
+| **May 2026** | Chat migrated to Typhoon ThaiLLM 8B · Google Sign-In · EAS + GitHub Actions release pipeline |
+
+48 commits · ~14,600 lines of application code.
+
+---
+
+## Tech stack
+
+| | |
+|---|---|
+| Mobile | React Native 0.76.9, Expo SDK 52 |
+| Navigation | React Navigation 6 (stack) |
+| Chat LLM | Typhoon `typhoon-s-thaillm-8b-instruct` (ThaiLLM) |
+| Game LLM | Google `gemini-2.0-flash` |
+| Auth | Firebase Authentication + Google Sign-In |
+| Data | Cloud Firestore, Realtime Database, AsyncStorage |
+| TTS | expo-speech · FastAPI + Gemini Live voice · Flask |
+| Build | EAS Build, GitHub Actions |
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
